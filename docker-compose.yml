@@ -1,0 +1,40 @@
+version: '3.6'
+
+services:
+  eva-api:
+    container_name: eva-api
+    build:
+      context: .
+      target: development
+      dockerfile: Docker/Dockerfile
+    command: yarn run start:debug
+    depends_on:
+      - postgres
+    ports:
+      - "3005:3000"
+    networks:
+      - app-eva-network
+    volumes:
+      - .:/usr/src/app
+    restart: unless-stopped
+
+
+  postgres:
+    container_name: postgres
+    image: postgres:13
+    restart: always
+    ports:
+      - "54320:5432"
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - TZ=GMT
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    networks:
+      - app-eva-network
+
+networks:
+  app-eva-network:
+    driver: bridge
